@@ -28,39 +28,6 @@ from korth_spirit.data import ObjectCreateData, ObjectDeleteData
 from korth_spirit.sdk import aw_object_add, aw_object_delete
 
 
-def ceil_div(a: int, b: int) -> int:
-    """
-    Returns the ceiling of a / b.
-
-    Args:
-        a (int): The dividend.
-        b (int): The divisor.
-
-    Returns:
-        int: The ceiling of a / b.
-    """
-    return -(a // -b)
-
-def query_world(bot: Instance) -> Iterable[AWObject]:
-    """
-    Queries the entire world. Assumes priveleges.
-    It is important to remember that we're scanning sectors of 8x8 cells in a 3x3 grid.
-
-    Args:
-        bot (Instance): The instance who does the work.
-
-    Returns:
-        Iterable[AWObject]: A list of the objects queried.
-    """
-    world_size = bot.get_world().get_attribute(WorldEnum.AW_WORLD_SIZE)
-    scan_range = ceil_div(world_size, 8)
-
-    for x in range(-scan_range, scan_range + 1):
-        for z in range(-scan_range, scan_range + 1):
-            print(f"Querying sector {x * 8}, {z * 8}")
-            for obj in bot.query(x * 8, z * 8):
-                yield AWObject.from_cell_object(obj)
-
 def append_to_file(file_name: str, data: str):
     """
     Appends the data to the file.
@@ -163,7 +130,7 @@ with Instance(name="Portal Mage") as bot:
                 .move_to(Coordinates(0, 0, 0))
         )
 
-        on_each(query_world(bot), lambda obj: and_do(
+        on_each(bot.get_world().query(), lambda obj: and_do(
             funcs=[
                 lambda: try_delete(obj),
                 lambda: append_to_file("backup.txt", json.dumps(obj.__dict__) + "\n"),
