@@ -18,125 +18,37 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-import json
-from typing import Callable, Iterable, List
-
-from korth_spirit import Instance, WorldEnum
-from korth_spirit.aw_object import AWObject
+from korth_spirit import Instance
 from korth_spirit.coords import Coordinates
-from korth_spirit.data import ObjectCreateData, ObjectDeleteData
-from korth_spirit.sdk import aw_object_add, aw_object_delete
 
-
-def append_to_file(file_name: str, data: str):
-    """
-    Appends the data to the file.
-
-    Args:
-        file_name (str): The name of the file to append to.
-        data (str): The data to append.
-    """    
-    with open(file_name, "a") as f:
-        f.write(data)
-
-def and_do(funcs: List[Callable], *args, **kwargs) -> None:
-    """
-    Iterates over all objects in the world.
-
-    Args:
-        bot (Instance): The instance who does the work.
-        funcs (List[Callable]): The list of functions to call.
-        args (List[Any]): The list of arguments to pass to the functions.
-        kwargs (Dict[str, Any]): The dictionary of keyword arguments to pass to the functions.
-    """
-    for each in funcs:
-        each(*args, **kwargs)
-    
-def on_each(iterable: Iterable, callback: callable) -> None:
-    """
-    Iterates over all objects in the world.
-
-    Args:
-        callback (callable): The callback to call for each object.
-    """
-    for each in iterable:
-        callback(each)
-
-def try_delete(obj: AWObject) -> None:
-    """
-    Attempts to delete the object.
-
-    Args:
-        bot (Instance): The instance who does the work.
-        obj (AWObject): The object to delete.
-    """
-    try:
-        aw_object_delete(ObjectDeleteData(
-            number=obj.number,
-            x=obj.x,
-            z=obj.z,
-        ))
-    except Exception as e:
-        print(f"Failed to delete {obj} -- {e}")
-
-def try_add(obj: AWObject) -> None:
-    """
-    Attempts to add the object.
-
-    Args:
-        bot (Instance): The instance who does the work.
-        obj (AWObject): The object to add.
-    """
-    try:
-        aw_object_add(ObjectCreateData(
-            type=obj.type,
-            x=obj.x,
-            y=obj.y,
-            z=obj.z,
-            yaw=obj.yaw,
-            tilt=obj.tilt,
-            roll=obj.roll,
-            model=obj.model,
-            description=obj.description,
-            action=obj.action,
-            data=obj.data
-        ))
-    except Exception as e:
-        print(f"Failed to add {obj} -- {e}")
-
-def restore_from_file(bot: Instance, file_name: str) -> None:
-    """
-    Restores the objects from the file.
-
-    Args:
-        bot (Instance): The instance who does the work.
-        file_name (str): The name of the file to restore from.
-    """
-    with open(file_name, "r") as f:
-        for line in f:
-            try_add(AWObject(
-                **json.loads(line)
-            ))
+from utilities import (and_do, append_to_file, load_saved_file, on_each,
+                       try_add, try_delete)
 
 with Instance(name="Portal Mage") as bot:
     try:
-        (
-            bot
-                .login(
-                    citizen_number=(int(input("Citizen Number: "))),
-                    password=input("Password: ")
-                )
-                .enter_world(input("World: "))
-                .move_to(Coordinates(0, 0, 0))
-        )
+        bot.login(
+            citizen_number=(int(input("Citizen Number: "))),
+            password=input("Password: ")
+        ).enter_world(
+            world_name=input("World: ")
+        ).move_to(Coordinates(x=0, y=0, z=0))
 
         on_each(bot.get_world().query(), lambda obj: and_do(
             funcs=[
                 lambda: try_delete(obj),
-                lambda: append_to_file("backup.txt", json.dumps(obj.__dict__) + "\n"),
+                lambda: append_to_file("backup.txt", obj),
+                lambda: print(f'Attempting to delete {obj.model} at {obj.x}, {obj.y}, {obj.z}'),
+                lambda: append_to_file("log.txt", f'Attempting to delete {vars(obj)}'),
             ]
         ))
-        restore_from_file(bot, "./backup.txt")
+
+        on_each(load_saved_file("backup.txt"), lambda obj: and_do(
+            funcs=[
+                lambda: try_add(obj),
+                lambda: print(f'Attempting to add {obj.model} at {obj.x}, {obj.y}, {obj.z}'),
+                lambda: append_to_file("log.txt", f'Attempting to add {vars(obj)}'),
+            ]
+        ))
 
     except Exception as e:
         print("An error occurred:", e)
