@@ -21,20 +21,19 @@
 import json
 from typing import Callable, Iterable, List, Union
 
-from korth_spirit.aw_object import AWObject
-from korth_spirit.data import ObjectCreateData, ObjectDeleteData
+from korth_spirit.data import ObjectCreateData, ObjectDeleteData, CellObjectData
 from korth_spirit.sdk import aw_object_add, aw_object_delete
 
 
-def append_to_file(file_name: str, data: Union[AWObject, str]) -> None:
+def append_to_file(file_name: str, data: Union[CellObjectData, str]) -> None:
     """
     Appends the data to the file.
 
     Args:
         file_name (str): The name of the file to append to.
-        data (Union[AWObject, str]): The data to append.
+        data (Union[CellObjectData, str]): The data to append.
     """
-    if type(data) == AWObject:
+    if type(data) == CellObjectData:
         data = json.dumps(data.__dict__)
     
     with open(file_name, "a") as f:
@@ -63,29 +62,29 @@ def on_each(iterable: Iterable, callback: callable) -> None:
     for each in iterable:
         callback(each)
 
-def load_saved_file(file_name: str) -> Iterable[AWObject]:
+def load_saved_file(file_name: str) -> Iterable[CellObjectData]:
     """
-    Load the AWObjects saved as json objects separated by new lines.
+    Load the CellObjectDatum saved as json objects separated by new lines.
 
     Args:
         file_name (str): The name of the file to load.
 
     Returns:
-        Iterable[AWObject]: The list of AWObjects.
+        Iterable[CellObjectData]: The list of CellObjectData.
     """
     with open(file_name, "r") as f:
         for line in f:
-            yield AWObject(
+            yield CellObjectData(
                 **json.loads(line)
             )
 
-def try_delete(obj: AWObject) -> None:
+def try_delete(obj: CellObjectData) -> None:
     """
     Attempts to delete the object.
 
     Args:
         bot (Instance): The instance who does the work.
-        obj (AWObject): The object to delete.
+        obj (CellObjectData): The object to delete.
     """
     try:
         aw_object_delete(ObjectDeleteData(
@@ -96,13 +95,13 @@ def try_delete(obj: AWObject) -> None:
     except Exception as e:
         print(f"Failed to delete {obj} -- {e}")
 
-def try_add(obj: AWObject) -> None:
+def try_add(obj: CellObjectData) -> None:
     """
     Attempts to add the object.
 
     Args:
         bot (Instance): The instance who does the work.
-        obj (AWObject): The object to add.
+        obj (CellObjectData): The object to add.
     """
     try:
         aw_object_add(ObjectCreateData(

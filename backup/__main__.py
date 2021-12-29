@@ -33,7 +33,7 @@ with Instance(name="Portal Mage") as bot:
             world_name=input("World: ")
         ).move_to(Coordinates(x=0, y=0, z=0))
 
-        on_each(bot.get_world().query(), lambda obj: and_do(
+        on_each(bot.query(), lambda obj: and_do(
             funcs=[
                 lambda: try_delete(obj),
                 lambda: append_to_file("backup.txt", obj),
