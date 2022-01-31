@@ -18,39 +18,29 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from korth_spirit import Instance
-from korth_spirit.coords import Coordinates
+from korth_spirit import ConfigurableInstance
+from korth_spirit.configuration import (AggregateConfiguration,
+                                        InputConfiguration, JsonConfiguration)
 
 from utilities import (and_do, append_to_file, load_saved_file, on_each,
                        try_add, try_delete)
 
-with Instance(name="Portal Mage") as bot:
-    try:
-        bot.login(
-            citizen_number=(int(input("Citizen Number: "))),
-            password=input("Password: ")
-        ).enter_world(
-            world_name=input("World: ")
-        ).move_to(Coordinates(x=0, y=0, z=0))
+with ConfigurableInstance(
+    AggregateConfiguration({
+        JsonConfiguration: ("configuration.json",),
+    })
+) as bot:
+    on_each(bot.query(), lambda obj: and_do(
+        funcs=[
+            lambda: try_delete(obj),
+            lambda: append_to_file("backup.txt", obj),
+            lambda: print(f'Attempting to delete {obj.model} at {obj.x}, {obj.y}, {obj.z}'),
+        ]
+    ))
 
-        on_each(bot.query(), lambda obj: and_do(
-            funcs=[
-                lambda: try_delete(obj),
-                lambda: append_to_file("backup.txt", obj),
-                lambda: print(f'Attempting to delete {obj.model} at {obj.x}, {obj.y}, {obj.z}'),
-                lambda: append_to_file("log.txt", f'Attempting to delete {vars(obj)}'),
-            ]
-        ))
-
-        on_each(load_saved_file("backup.txt"), lambda obj: and_do(
-            funcs=[
-                lambda: try_add(obj),
-                lambda: print(f'Attempting to add {obj.model} at {obj.x}, {obj.y}, {obj.z}'),
-                lambda: append_to_file("log.txt", f'Attempting to add {vars(obj)}'),
-            ]
-        ))
-
-    except Exception as e:
-        print("An error occurred:", e)
-        exit()
-
+    on_each(load_saved_file("backup.txt"), lambda obj: and_do(
+        funcs=[
+            lambda: try_add(obj),
+            lambda: print(f'Attempting to add {obj.model} at {obj.x}, {obj.y}, {obj.z}'),
+        ]
+    ))
