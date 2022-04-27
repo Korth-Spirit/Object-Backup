@@ -1,6 +1,8 @@
 # Object Backup
 
-This is an example program that users the Spirit of Korth's Software Development Wrapper for Active Worlds to interact with the [Active Worlds](https://www.activeworlds.com). This project or its contributors are not affiliated with Active Worlds. This program was written to showcase the ease backing up a world's objects and restoring them back their original state. The Active Worlds SDK is provided in aw64.dll. By using the active worlds SDK, you are agreeing to the terms of the [Active Worlds SDK License Agreement](https://www.activeworlds.com/sdk/download.htm).
+This is an example program that uses the Spirit of Korth's Software Development Wrapper for Active Worlds to interact with the [Active Worlds](https://www.activeworlds.com). This program was written to showcase the ease backing up a world's objects and restoring them back their original state.
+
+This project and/or its contributors are not affiliated with Active Worlds. 
 
 ## Usage
 
