@@ -20,7 +20,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from korth_spirit import ConfigurableInstance
 from korth_spirit.configuration import (AggregateConfiguration,
-                                        InputConfiguration, JsonConfiguration)
+                                        JsonConfiguration)
 
 from utilities import (and_do, append_to_file, load_saved_file, on_each,
                        try_add, try_delete)
