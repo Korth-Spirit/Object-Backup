@@ -23,7 +23,7 @@ from typing import Callable, Iterable, List, Union
 
 from korth_spirit.data import (CellObjectData, ObjectCreateData,
                                ObjectDeleteData)
-from korth_spirit.sdk import aw_object_add, aw_object_delete, aw_object_change
+from korth_spirit.sdk import aw_object_add, aw_object_delete
 
 
 def append_to_file(file_name: str, data: Union[CellObjectData, str]) -> None:
@@ -36,7 +36,6 @@ def append_to_file(file_name: str, data: Union[CellObjectData, str]) -> None:
     """
     if type(data) == CellObjectData:
         dict_data = data.__dict__
-        dict_data.pop("data") # Not Implemented
         data = json.dumps(dict_data)
     
     with open(file_name, "a") as f:
@@ -79,7 +78,6 @@ def load_saved_file(file_name: str) -> Iterable[CellObjectData]:
         for line in f:
             yield CellObjectData(
                 **json.loads(line),
-                data=None # Not implemented
             )
 
 def try_delete(obj: CellObjectData) -> None:
@@ -119,7 +117,6 @@ def try_add(obj: CellObjectData) -> None:
             model=obj.model,
             description=obj.description,
             action=obj.action,
-            data=obj.data or None
         ))
     except Exception as e:
         print(f"Failed to add {obj} -- {e}")
