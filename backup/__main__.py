@@ -19,16 +19,13 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from korth_spirit import ConfigurableInstance
-from korth_spirit.configuration import (AggregateConfiguration,
-                                        JsonConfiguration)
+from korth_spirit.configuration import JsonConfiguration
 
 from utilities import (and_do, append_to_file, load_saved_file, on_each,
                        try_add, try_delete)
 
 with ConfigurableInstance(
-    AggregateConfiguration({
-        JsonConfiguration: ("configuration.json",),
-    })
+    JsonConfiguration("configuration.json")
 ) as bot:
     on_each(bot.query(), lambda obj: and_do(
         funcs=[
